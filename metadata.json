@@ -1,0 +1,8 @@
+{
+    "name": "Focused Window D-Bus",
+    "description": "Expose focused window details via D-Bus",
+    "uuid": "focused-window-dbus@local",
+    "shell-version": ["45", "46", "47", "48", "49", "50"],
+    "url": "",
+    "version": 1
+}
