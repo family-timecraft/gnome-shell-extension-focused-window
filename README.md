@@ -33,6 +33,63 @@ from that XML.
   `GetVisibleWindows()` for unlock recovery and startup snapshot
 - Desktop GUI — optional live active-window read
 
+## Install
+
+Prerequisites: GNOME Shell 45+, Wayland session, `gnome-extensions` CLI.
+
+### User install (recommended, no root)
+
+```bash
+EXT_DIR="$HOME/.local/share/gnome-shell/extensions/focused-window-dbus@local"
+mkdir -p "$EXT_DIR"
+cp extension.js metadata.json "$EXT_DIR/"
+gnome-extensions enable focused-window-dbus@local
+```
+
+Then log out and back in (Wayland has no Shell restart; `Alt+F2 r` works
+on X11 only).
+
+### System-wide install (root, all users)
+
+```bash
+sudo mkdir -p /usr/share/gnome-shell/extensions/focused-window-dbus@local
+sudo cp extension.js metadata.json \
+  /usr/share/gnome-shell/extensions/focused-window-dbus@local/
+sudo chmod 644 \
+  /usr/share/gnome-shell/extensions/focused-window-dbus@local/{extension.js,metadata.json}
+gnome-extensions enable focused-window-dbus@local
+```
+
+Log out and back in.
+
+### Verify
+
+```bash
+gnome-extensions info focused-window-dbus@local
+gdbus call --session --dest org.gnome.Shell.Extensions.FocusedWindow \
+  --object-path /org/gnome/Shell/Extensions/FocusedWindow \
+  --method org.gnome.Shell.Extensions.FocusedWindow.Get
+```
+
+## Remove
+
+Disable keeps files, remove deletes them.
+
+```bash
+# Disable only
+gnome-extensions disable focused-window-dbus@local
+
+# User install remove
+gnome-extensions disable focused-window-dbus@local
+rm -rf "$HOME/.local/share/gnome-shell/extensions/focused-window-dbus@local"
+
+# System-wide remove
+gnome-extensions disable focused-window-dbus@local
+sudo rm -rf /usr/share/gnome-shell/extensions/focused-window-dbus@local
+```
+
+Log out and back in for removal to take effect.
+
 ## Management
 
 ```bash
