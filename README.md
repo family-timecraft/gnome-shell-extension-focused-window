@@ -102,3 +102,7 @@ gdbus monitor --session --dest org.gnome.Shell.Extensions.FocusedWindow
 ```
 
 Logs: `journalctl -f -o cat /usr/bin/gnome-shell`.
+
+## License
+
+GPL-2.0-or-later, see `LICENSE`. SPDX identifier in `extension.js`.
