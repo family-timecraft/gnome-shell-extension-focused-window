@@ -146,7 +146,6 @@ class FocusedWindowDBus {
 
     _getVisibleWindowData() {
         const focusedWindow = global.display.focus_window;
-        const focusedPid = focusedWindow && typeof focusedWindow.get_pid === "function" ? focusedWindow.get_pid() : null;
         const visibleWindows = [];
         const actors = typeof global.get_window_actors === "function" ? global.get_window_actors() : [];
 
@@ -156,13 +155,12 @@ class FocusedWindowDBus {
                 continue;
             }
 
-            const data = this._buildWindowData(window, false);
+            // Object identity, not PID: one process may own several windows
+            // (e.g. gnome-terminal-server) and PID matching would flag all
+            // of them focused at once.
+            const data = this._buildWindowData(window, window === focusedWindow);
             if (!data || !data.app_id || data.is_skip_taskbar) {
                 continue;
-            }
-
-            if (focusedPid && data.pid && data.pid === focusedPid) {
-                data.focused = true;
             }
 
             visibleWindows.push(data);
@@ -177,7 +175,6 @@ class FocusedWindowDBus {
         // GetVisibleWindows, but the is_skip_taskbar filter is lifted so
         // background processes resolve to instances without waiting for focus.
         const focusedWindow = global.display.focus_window;
-        const focusedPid = focusedWindow && typeof focusedWindow.get_pid === "function" ? focusedWindow.get_pid() : null;
         const allWindows = [];
         const actors = typeof global.get_window_actors === "function" ? global.get_window_actors() : [];
 
@@ -187,13 +184,10 @@ class FocusedWindowDBus {
                 continue;
             }
 
-            const data = this._buildWindowData(window, false);
+            // Object identity, not PID (see _getVisibleWindowData).
+            const data = this._buildWindowData(window, window === focusedWindow);
             if (!data || !data.app_id) {
                 continue;
-            }
-
-            if (focusedPid && data.pid && data.pid === focusedPid) {
-                data.focused = true;
             }
 
             allWindows.push(data);
