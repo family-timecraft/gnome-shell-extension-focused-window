@@ -17,7 +17,9 @@ session D-Bus. Usage Capture sensor feeding `timecraft-wayland-tracker`.
 
 `GetVisibleWindows` iterates window actors, skips `is_skip_taskbar` entries,
 marks focus by PID match. Each entry carries `app_id`, `title`, `pid`,
-`monitor_index`, `monitor_connector`, `geometry`, workspace and state flags.
+`window_id` (stable per-window discriminator for same-title windows of a
+single-process app), `monitor_index`, `monitor_connector`, `geometry`,
+workspace and state flags.
 
 Contract authority: `timecraft-ts-shared`
 `dbus/org.gnome.Shell.Extensions.FocusedWindow.xml` — this repo must not drift

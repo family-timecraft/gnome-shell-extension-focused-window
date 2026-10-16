@@ -86,6 +86,10 @@ class FocusedWindowDBus {
 
         const title = typeof window.get_title === "function" ? window.get_title() || "" : "";
         const pid = typeof window.get_pid === "function" ? window.get_pid() : 0;
+        // Stable per-window discriminator (XID on X11, unique window id on
+        // Wayland): lets the tracker split focus between same-title windows
+        // of a single-process app (e.g. gnome-terminal-server).
+        const window_id = typeof window.get_id === "function" ? window.get_id() : 0;
         const sandboxed_app_id =
             typeof window.get_sandboxed_app_id === "function" ? window.get_sandboxed_app_id() || null : null;
         const window_type = typeof window.get_window_type === "function" ? window.get_window_type() : -1;
@@ -113,6 +117,7 @@ class FocusedWindowDBus {
             app_id,
             title,
             pid,
+            window_id,
             sandboxed_app_id,
             window_type,
             workspace: workspace_index,
