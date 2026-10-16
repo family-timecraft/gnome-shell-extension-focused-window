@@ -4,7 +4,7 @@ import GLib from "gi://GLib";
 
 // Raw XML interface definition (required by wrapJSObject)
 // Canonical contract: org.gnome.Shell.Extensions.FocusedWindow
-// Methods: Get, GetVisibleWindows. Signal: FocusChanged.
+// Methods: Get, GetVisibleWindows, GetAllWindows. Signal: FocusChanged.
 // Must stay in sync with timecraft-ts-shared
 // dbus/org.gnome.Shell.Extensions.FocusedWindow.xml (no drift).
 const DBUS_INTERFACE_XML = `
@@ -14,6 +14,9 @@ const DBUS_INTERFACE_XML = `
       <arg type="s" name="json_data" direction="out"/>
     </method>
         <method name="GetVisibleWindows">
+            <arg type="s" name="json_data" direction="out"/>
+        </method>
+        <method name="GetAllWindows">
             <arg type="s" name="json_data" direction="out"/>
         </method>
         <signal name="FocusChanged">
@@ -43,6 +46,17 @@ class FocusedWindowDBus {
             return new GLib.Variant("(s)", [jsonStr]);
         } catch (e) {
             logError(e, "FocusedWindowDBus GetVisibleWindows");
+            throw new GLib.Error(Gio.dbus_error_quark(), Gio.DBusError.FAILED, e.message);
+        }
+    }
+
+    GetAllWindows() {
+        try {
+            const data = this._getAllWindowData();
+            const jsonStr = JSON.stringify(data);
+            return new GLib.Variant("(s)", [jsonStr]);
+        } catch (e) {
+            logError(e, "FocusedWindowDBus GetAllWindows");
             throw new GLib.Error(Gio.dbus_error_quark(), Gio.DBusError.FAILED, e.message);
         }
     }
@@ -150,6 +164,37 @@ class FocusedWindowDBus {
         }
 
         return visibleWindows;
+    }
+
+    _getAllWindowData() {
+        // All open windows for the tracker startup snapshot: minimized,
+        // hidden, and other-workspace windows included. Same row shape as
+        // GetVisibleWindows, but the is_skip_taskbar filter is lifted so
+        // background processes resolve to instances without waiting for focus.
+        const focusedWindow = global.display.focus_window;
+        const focusedPid = focusedWindow && typeof focusedWindow.get_pid === "function" ? focusedWindow.get_pid() : null;
+        const allWindows = [];
+        const actors = typeof global.get_window_actors === "function" ? global.get_window_actors() : [];
+
+        for (const actor of actors) {
+            const window = actor && actor.meta_window ? actor.meta_window : null;
+            if (!window) {
+                continue;
+            }
+
+            const data = this._buildWindowData(window, false);
+            if (!data || !data.app_id) {
+                continue;
+            }
+
+            if (focusedPid && data.pid && data.pid === focusedPid) {
+                data.focused = true;
+            }
+
+            allWindows.push(data);
+        }
+
+        return allWindows;
     }
 }
 

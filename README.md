@@ -9,6 +9,9 @@ session D-Bus. Usage Capture sensor feeding `timecraft-wayland-tracker`.
 - Path: `/org/gnome/Shell/Extensions/FocusedWindow`
 - `Get()` → `(s)` JSON object of the currently focused window
 - `GetVisibleWindows()` → `(s)` JSON array of trackable windows on every monitor
+- `GetAllWindows()` → `(s)` JSON array of all open windows, including
+  minimized, hidden, and other-workspace ones (same row shape; the
+  `is_skip_taskbar` filter is lifted for the tracker startup snapshot)
 - Signal `FocusChanged` → `(s)` JSON payload, emitted on `notify::focus-window`
   and on focused-window `notify::title`
 
@@ -30,7 +33,8 @@ from that XML.
 ## Consumers
 
 - `timecraft-wayland-tracker` — polls `Get()` every cycle, calls
-  `GetVisibleWindows()` for unlock recovery and startup snapshot
+  `GetAllWindows()` for the startup snapshot (falling back to
+  `GetVisibleWindows()` on older extension versions)
 - Desktop GUI — optional live active-window read
 
 ## Install
