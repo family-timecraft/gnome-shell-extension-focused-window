@@ -4,7 +4,7 @@ import GLib from "gi://GLib";
 
 // Raw XML interface definition (required by wrapJSObject)
 // Canonical contract: org.gnome.Shell.Extensions.FocusedWindow
-// Methods: Get, GetVisibleWindows. Signal: FocusChanged.
+// Methods: Get, GetVisibleWindows, GetAllWindows. Signal: FocusChanged.
 // Must stay in sync with timecraft-ts-shared
 // dbus/org.gnome.Shell.Extensions.FocusedWindow.xml (no drift).
 const DBUS_INTERFACE_XML = `
@@ -14,6 +14,9 @@ const DBUS_INTERFACE_XML = `
       <arg type="s" name="json_data" direction="out"/>
     </method>
         <method name="GetVisibleWindows">
+            <arg type="s" name="json_data" direction="out"/>
+        </method>
+        <method name="GetAllWindows">
             <arg type="s" name="json_data" direction="out"/>
         </method>
         <signal name="FocusChanged">
@@ -47,6 +50,17 @@ class FocusedWindowDBus {
         }
     }
 
+    GetAllWindows() {
+        try {
+            const data = this._getAllWindowData();
+            const jsonStr = JSON.stringify(data);
+            return new GLib.Variant("(s)", [jsonStr]);
+        } catch (e) {
+            logError(e, "FocusedWindowDBus GetAllWindows");
+            throw new GLib.Error(Gio.dbus_error_quark(), Gio.DBusError.FAILED, e.message);
+        }
+    }
+
     _buildWindowData(window, isFocused) {
         if (!window) {
             return null;
@@ -72,6 +86,10 @@ class FocusedWindowDBus {
 
         const title = typeof window.get_title === "function" ? window.get_title() || "" : "";
         const pid = typeof window.get_pid === "function" ? window.get_pid() : 0;
+        // Stable per-window discriminator (XID on X11, unique window id on
+        // Wayland): lets the tracker split focus between same-title windows
+        // of a single-process app (e.g. gnome-terminal-server).
+        const window_id = typeof window.get_id === "function" ? window.get_id() : 0;
         const sandboxed_app_id =
             typeof window.get_sandboxed_app_id === "function" ? window.get_sandboxed_app_id() || null : null;
         const window_type = typeof window.get_window_type === "function" ? window.get_window_type() : -1;
@@ -99,6 +117,7 @@ class FocusedWindowDBus {
             app_id,
             title,
             pid,
+            window_id,
             sandboxed_app_id,
             window_type,
             workspace: workspace_index,
@@ -127,7 +146,6 @@ class FocusedWindowDBus {
 
     _getVisibleWindowData() {
         const focusedWindow = global.display.focus_window;
-        const focusedPid = focusedWindow && typeof focusedWindow.get_pid === "function" ? focusedWindow.get_pid() : null;
         const visibleWindows = [];
         const actors = typeof global.get_window_actors === "function" ? global.get_window_actors() : [];
 
@@ -137,19 +155,45 @@ class FocusedWindowDBus {
                 continue;
             }
 
-            const data = this._buildWindowData(window, false);
+            // Object identity, not PID: one process may own several windows
+            // (e.g. gnome-terminal-server) and PID matching would flag all
+            // of them focused at once.
+            const data = this._buildWindowData(window, window === focusedWindow);
             if (!data || !data.app_id || data.is_skip_taskbar) {
                 continue;
-            }
-
-            if (focusedPid && data.pid && data.pid === focusedPid) {
-                data.focused = true;
             }
 
             visibleWindows.push(data);
         }
 
         return visibleWindows;
+    }
+
+    _getAllWindowData() {
+        // All open windows for the tracker startup snapshot: minimized,
+        // hidden, and other-workspace windows included. Same row shape as
+        // GetVisibleWindows, but the is_skip_taskbar filter is lifted so
+        // background processes resolve to instances without waiting for focus.
+        const focusedWindow = global.display.focus_window;
+        const allWindows = [];
+        const actors = typeof global.get_window_actors === "function" ? global.get_window_actors() : [];
+
+        for (const actor of actors) {
+            const window = actor && actor.meta_window ? actor.meta_window : null;
+            if (!window) {
+                continue;
+            }
+
+            // Object identity, not PID (see _getVisibleWindowData).
+            const data = this._buildWindowData(window, window === focusedWindow);
+            if (!data || !data.app_id) {
+                continue;
+            }
+
+            allWindows.push(data);
+        }
+
+        return allWindows;
     }
 }
 
