@@ -112,3 +112,12 @@ Logs: `journalctl -f -o cat /usr/bin/gnome-shell`.
 ## License
 
 GPL-2.0-or-later, see `LICENSE`. SPDX identifier in `extension.js`.
+
+---
+
+## Contributing
+
+Code contributions are not currently accepted; suggestions, bug reports, and
+comments are welcome. See the
+[organization contributing guide](https://github.com/family-timecraft/.github/blob/main/CONTRIBUTING.md)
+and this repository's [CONTRIBUTING.md](./CONTRIBUTING.md).
