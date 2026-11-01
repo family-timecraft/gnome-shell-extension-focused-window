@@ -1,4 +1,4 @@
-# gnome-shell-extension-focused-window
+# GNOME Shell Extension — Focused Window
 
 GNOME Shell 45+ extension exposing focused/visible windows per monitor over
 session D-Bus. Usage Capture sensor feeding `timecraft-wayland-tracker`.

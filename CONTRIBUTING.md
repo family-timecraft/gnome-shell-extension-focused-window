@@ -1,4 +1,4 @@
-# Contributing to gnome-shell-extension-focused-window
+# Contributing to GNOME Shell Extension — Focused Window
 
 Code contributions are not currently accepted; suggestions, bug reports, and
 comments are welcome. Use the issue forms in this repository to file feedback.
