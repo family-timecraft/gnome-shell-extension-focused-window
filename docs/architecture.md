@@ -8,8 +8,8 @@ persists window sessions. The extension itself stores nothing.
 ## D-Bus surface
 
 The extension exports one interface on the session bus. The canonical
-contract is the XML in `timecraft-ts-shared`; the rendered reference is
-[D-Bus contract reference](https://github.com/family-timecraft/timecraft-ts-shared/blob/main/docs/dbus-reference.md).
+contract is [`dbus/org.gnome.Shell.Extensions.FocusedWindow.xml`](../dbus/org.gnome.Shell.Extensions.FocusedWindow.xml);
+the rendered reference is [D-Bus contract reference](./dbus-reference.md).
 
 | | |
 | :--- | :--- |

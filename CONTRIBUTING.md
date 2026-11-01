@@ -25,10 +25,10 @@ contract live in [docs/architecture.md](./docs/architecture.md).
 In addition to the organization agreements:
 
 - The D-Bus surface must not drift from the canonical contract XML in
-  `timecraft-ts-shared` (the
-  [contract reference](https://github.com/family-timecraft/timecraft-ts-shared/blob/main/docs/dbus-reference.md)
+  [`dbus/`](./dbus/) (the
+  [contract reference](./docs/dbus-reference.md)
   is the rendered form).
 - Changes observable through D-Bus are reflected in `docs/architecture.md`
-  in the same change.
+  and `docs/dbus-reference.md` in the same change.
 - The extension must stay defensive: a failing window query logs and returns
   empty rather than breaking the shell.

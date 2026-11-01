@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+ "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<!-- Canonical D-Bus IPC contract for the FocusedWindow interface.
+     Exported by this GNOME Shell extension on the session bus
+     (name org.gnome.Shell.Extensions.FocusedWindow,
+      path /org/gnome/Shell/Extensions/FocusedWindow);
+     consumed by the timecraft-wayland-tracker daemon. -->
+<node name="/org/gnome/Shell/Extensions/FocusedWindow">
+  <interface name="org.gnome.Shell.Extensions.FocusedWindow">
+    <method name="Get">
+      <arg name="window_info" type="s" direction="out"/>
+    </method>
+    <method name="GetVisibleWindows">
+      <arg name="windows_list" type="s" direction="out"/>
+    </method>
+    <signal name="FocusChanged">
+      <arg name="new_window_info" type="s"/>
+    </signal>
+  </interface>
+</node>

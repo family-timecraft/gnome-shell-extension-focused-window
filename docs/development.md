@@ -46,8 +46,8 @@ There is no automated test suite; verify on a GNOME 45+ Wayland session:
 ## Maintainer agreements
 
 - The D-Bus surface must not drift from the canonical contract XML in
-  `timecraft-ts-shared` (see the
-  [contract reference](https://github.com/family-timecraft/timecraft-ts-shared/blob/main/docs/dbus-reference.md)).
+  [`dbus/`](../dbus/) (see the
+  [contract reference](./dbus-reference.md)).
 - GJS ESM style: keep `extension.js` dependency-free (Gio/GObject imports
   only) and defensive — a failing query logs and returns empty rather than
   breaking the shell.
